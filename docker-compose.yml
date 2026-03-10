@@ -1,0 +1,97 @@
+services:
+    mailpit:
+        image: axllent/mailpit
+        container_name: mailpit
+        restart: unless-stopped
+        volumes:
+            - github-images-mailpit:/data
+        ports:
+            - 8025:8025
+            - 1025:1025
+        environment:
+            MP_MAX_MESSAGES: 5000
+            MP_DATABASE: /data/mailpit.db
+            MP_SMTP_AUTH_ACCEPT_ANY: 1
+            MP_SMTP_AUTH_ALLOW_INSECURE: 1
+        networks:
+            - github-images-network
+
+    mariadb:
+        image: mariadb:12.2.2
+        container_name: mariadb
+        restart: unless-stopped
+        volumes:
+            - github-images-mariadb:/var/lib/mysql
+        command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_bin"]
+        healthcheck:
+            test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
+            interval: 5s
+            timeout: 3s
+            retries: 5
+        ports:
+            - 3406:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: toor
+            MYSQL_DATABASE: app
+            MYSQL_USER: appuser
+            MYSQL_PASSWORD: password
+            MARIADB_AUTO_UPGRADE: "1"
+        networks:
+            - github-images-network
+
+    phpmyadmin:
+        image: phpmyadmin:latest
+        container_name: phpmyadmin
+        restart: unless-stopped
+        ports:
+            - 8080:80
+        environment:
+            PMA_HOST: mariadb
+            PMA_PORT: 3306
+            PMA_USER: root
+            PMA_PASSWORD: toor
+        networks:
+            - github-images-network
+        depends_on:
+            mariadb:
+                condition: service_healthy
+
+    nats:
+        image: nats:2.12.5-linux
+        container_name: nats
+        command: --config /nats-server.conf
+        ports:
+            - 4322:4222
+            - 8322:8222
+            - 9322:9222
+        volumes:
+            - ./files/nats.conf:/nats-server.conf
+              - github-images-nats:/tmp/nats/jetstream
+        networks:
+            - github-images-network
+
+    redis:
+        image: redis:8.6.1-trixie
+        container_name: redis
+        command: sh -c "redis-server /app/redis.conf"
+        ports:
+            - 6479:6379
+        volumes:
+            - ./files/redis.conf:/app/redis.conf
+            - github-images-redis:/data
+        networks:
+            - github-images-network
+
+networks:
+    github-images-network:
+        driver: bridge
+
+volumes:
+    github-images-mailpit:
+        driver: local
+    github-images-mariadb:
+        driver: local
+    github-images-nats:
+        driver: local
+    github-images-redis:
+        driver: local
