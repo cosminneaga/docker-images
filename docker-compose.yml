@@ -22,7 +22,8 @@ services:
         restart: unless-stopped
         volumes:
             - github-images-mariadb:/var/lib/mysql
-        command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_bin"]
+        command:
+            ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
         healthcheck:
             test: ["CMD", "/usr/local/bin/healthcheck.sh", "--innodb_initialized"]
             interval: 5s
@@ -59,6 +60,7 @@ services:
     nats:
         image: nats:2.12.5-linux
         container_name: nats
+        restart: unless-stopped
         command: --config /nats-server.conf
         ports:
             - 4322:4222
@@ -73,6 +75,7 @@ services:
     redis:
         image: redis:8.6.1-trixie
         container_name: redis
+        restart: unless-stopped
         command: sh -c "redis-server /app/redis.conf"
         ports:
             - 6479:6379
