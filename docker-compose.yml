@@ -85,6 +85,20 @@ services:
         networks:
             - github-images-network
 
+    syncthing:
+        image: syncthing/syncthing:2.1.0
+        container_name: syncthing
+        restart: unless-stopped
+        ports:
+            - 8384:8384
+            - 22000:22000/tcp
+            - 22000:20000/udp
+            - 21027:21027/udp
+        volumes:
+            - github-images-syncthing-config:/config
+        networks:
+            - github-images-network
+
 networks:
     github-images-network:
         driver: bridge
@@ -97,4 +111,6 @@ volumes:
     github-images-nats:
         driver: local
     github-images-redis:
+        driver: local
+    github-images-syncthing-config:
         driver: local
