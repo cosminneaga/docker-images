@@ -99,6 +99,28 @@ services:
         networks:
             - github-images-network
 
+    n8n:
+        image: docker.n8n.io/n8nio/n8n
+        container_name: n8n
+        restart: unless-stopped
+        ports:
+            - 5678:5678
+        environment:
+            DOMAIN_NAME: localhost
+            SUBDOMAIN: n8n
+            GENERIC_TIMEZONE: Europe/Bucharest
+            SSL_EMAIL: example@email.com
+            N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+            N8N_HOST: ${SUBDOMAIN}.${DOMAIN_NAME}
+            N8N_PORT: 5678
+            N8N_PROTOCOL: http
+            NODE_ENV: local
+            WEBHOOK_URL: http://${SUBDOMAIN}.${DOMAIN_NAME}/
+            TZ: ${GENERIC_TIMEZONE}
+        volumes:
+            - github-images-n8n-data:/home/node/.n8n
+            - ./files/n8n:/files
+
 networks:
     github-images-network:
         driver: bridge
@@ -114,3 +136,6 @@ volumes:
         driver: local
     github-images-syncthing-config:
         driver: local
+    github-images-n8n-data:
+        driver: local
+    
