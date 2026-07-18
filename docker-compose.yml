@@ -73,7 +73,7 @@ services:
             - github-images-network
 
     redis:
-        image: redis:8.6.1-trixie
+        image: redis:8.8.0
         container_name: redis
         restart: unless-stopped
         command: sh -c "redis-server /app/redis.conf"
