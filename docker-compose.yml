@@ -1,6 +1,6 @@
 services:
     mailpit:
-        image: axllent/mailpit
+        image: axllent/mailpit:latest
         container_name: mailpit
         restart: unless-stopped
         volumes:
@@ -68,7 +68,7 @@ services:
             - 9322:9222
         volumes:
             - ./files/nats.conf:/nats-server.conf
-              - github-images-nats:/tmp/nats/jetstream
+            - github-images-nats:/tmp/nats/jetstream
         networks:
             - github-images-network
 
@@ -100,26 +100,60 @@ services:
             - github-images-network
 
     n8n:
-        image: docker.n8n.io/n8nio/n8n
-        container_name: n8n
-        restart: unless-stopped
-        ports:
-            - 5678:5678
-        environment:
-            DOMAIN_NAME: localhost
-            SUBDOMAIN: n8n
-            GENERIC_TIMEZONE: Europe/Bucharest
-            SSL_EMAIL: example@email.com
-            N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
-            N8N_HOST: ${SUBDOMAIN}.${DOMAIN_NAME}
-            N8N_PORT: 5678
-            N8N_PROTOCOL: http
-            NODE_ENV: local
-            WEBHOOK_URL: http://${SUBDOMAIN}.${DOMAIN_NAME}/
-            TZ: ${GENERIC_TIMEZONE}
-        volumes:
-            - github-images-n8n-data:/home/node/.n8n
-            - ./files/n8n:/files
+      image: docker.n8n.io/n8nio/n8n
+      container_name: n8n
+      restart: unless-stopped
+      ports:
+          - 5678:5678
+      environment:
+          DOMAIN_NAME: localhost
+          SUBDOMAIN: n8n
+          GENERIC_TIMEZONE: Europe/Bucharest
+          SSL_EMAIL: example@email.com
+          N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+          N8N_HOST: ${SUBDOMAIN}.${DOMAIN_NAME}
+          N8N_PORT: 5678
+          N8N_PROTOCOL: http
+          NODE_ENV: local
+          WEBHOOK_URL: http://${SUBDOMAIN}.${DOMAIN_NAME}/
+          TZ: ${GENERIC_TIMEZONE}
+      volumes:
+          - github-images-n8n-data:/home/node/.n8n
+          - ./files/n8n:/files
+      networks:
+        - github-images-network
+
+    dockhand:
+      image: fnsys/dockhand:latest
+      container_name: dockhand
+      restart: unless-stopped
+      ports:
+        - 3030:3000
+      volumes:
+        - ~/.docker/desktop/docker.sock:/var/run/docker.sock
+        - github-images-dockhand:/app/data
+      networks:
+        - github-images-network
+
+    drawio:
+      image: jgraph/drawio:latest
+      container_name: drawio
+      restart: unless-stopped
+      ports:
+        - 8090:8080
+      environment:
+        LETS_ENCRYPT_ENABLED: true
+      networks:
+        - github-images-network
+
+    bentopdf:
+      image: bentopdf/bentopdf:latest
+      container_name: bentopdf
+      restart: unless-stopped
+      ports:
+        - 8091:8080
+      networks:
+        - github-images-network
 
 networks:
     github-images-network:
@@ -137,5 +171,7 @@ volumes:
     github-images-syncthing-config:
         driver: local
     github-images-n8n-data:
+        driver: local
+    github-images-dockhand:
         driver: local
     
