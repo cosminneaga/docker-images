@@ -123,17 +123,17 @@ services:
       networks:
         - github-images-network
 
-    dockhand:
-      image: fnsys/dockhand:latest
-      container_name: dockhand
-      restart: unless-stopped
-      ports:
-        - 3030:3000
-      volumes:
-        - ~/.docker/desktop/docker.sock:/var/run/docker.sock
-        - github-images-dockhand:/app/data
-      networks:
-        - github-images-network
+    # dockhand:
+    #   image: fnsys/dockhand:latest
+    #   container_name: dockhand
+    #   restart: unless-stopped
+    #   ports:
+    #     - 3030:3000
+    #   volumes:
+    #     - ~/.docker/desktop/docker.sock:/var/run/docker.sock
+    #     - github-images-dockhand:/app/data
+    #   networks:
+    #     - github-images-network
 
     drawio:
       image: jgraph/drawio:latest
@@ -172,6 +172,6 @@ volumes:
         driver: local
     github-images-n8n-data:
         driver: local
-    github-images-dockhand:
-        driver: local
+    # github-images-dockhand:
+    #     driver: local
     
